@@ -199,7 +199,7 @@ CAPACITY_TABLE: dict[int, dict] = {
 
 
 
-def get_version(data: bytes, ec_level: str, encoding_mode: int) -> int:
+def get_version(data: str, ec_level: str, encoding_mode: int) -> int:
     size = len(data)
 
     for version in sorted(CAPACITY_TABLE[encoding_mode]):
