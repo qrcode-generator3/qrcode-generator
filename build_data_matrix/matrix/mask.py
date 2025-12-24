@@ -62,6 +62,29 @@ def penalty_score(matrix):
             if all(b == 0 for b in block) or all(b == 1 for b in block):
                 score += 3
 
+    # Rule 3: special patterns 1011101
+    patterns = [
+        [1,0,1,1,1,0,1,0,0,0,0], # 1011101 followed by 4 light modules
+        [0,0,0,0,1,0,1,1,1,0,1], # 4 light modules followed by 1011101
+    ]
+    for r in range(size):
+        for c in range(size - 10):
+            row_slice = matrix[r][c:c+11]
+            if row_slice in patterns:
+                score += 40
+    
+    for c in range(size):
+        for r in range(size - 10):
+            col_slice = [matrix[r+i][c] for i in range(11)]
+            if col_slice in patterns:
+                score += 40
+
+    # Rule 4: dark module ratio
+    dark_count = sum(sum(row) for row in matrix)
+    percent = (dark_count * 100) / (size * size)
+    prev_5 = int(abs(percent - 50) // 5)
+    score += prev_5 * 10
+
     return score
 
 
@@ -102,13 +125,15 @@ def place_format_info(matrix, reserved, mask, ec_level='M'):
     for i in range(6):
         matrix[5 - i][8] = bits[9 + i]
 
-    # Top-right
+    # Top-right: redundant bits (redundant area 1)
+    # b14 to b7 go from (8, size-1) to (8, size-8)
     for i in range(8):
-        matrix[8][size - 1 - i] = bits[7 + i]
+        matrix[8][size - 1 - i] = bits[i]
 
-    # Bottom-left
+    # Bottom-left: redundant bits (redundant area 2)
+    # b0 to b6 go from (size-1, 8) to (size-7, 8)
     for i in range(7):
-        matrix[size - 1 - i][8] = bits[i]
+        matrix[size - 1 - i][8] = bits[14 - i]
 
 
 
