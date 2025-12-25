@@ -78,11 +78,13 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
+We welcome contributions! Whether it's adding new encoding modes, supporting higher versions, improving rendering, writing tests, or fixing bugs.
+
+Please read our [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting.
 
 ## Acknowledgments
 
 - Based on the QR code specification (ISO/IEC 18004)
 - Uses `reedsolo` for Reed-Solomon implementation
 
-Enjoy generating QR codes! 🚀
+Enjoy generating QR codes!
