@@ -5,9 +5,7 @@ from build_data_matrix.matrix.mask import apply_mask, place_format_info, select_
 from build_data_matrix.matrix.placement import build_base_matrix
 from render_data_matrix.render import render_qr
 
-
-
-def generate_qrcode(data: str):
+def generate_qrcode(data: str, filename: str = "a12.png", fg_color=(0,0,0), bg_color=(255,255,255)):
     """Generate a QR code image from the input data (fixed EC level 'M')."""
     # Detect best encoding mode for the data
     encoding = identify_encoding(data)
@@ -33,5 +31,5 @@ def generate_qrcode(data: str):
     place_format_info(masked_matrix, reserved, mask, ec_level=ec_level)
 
     # Render and save the QR code image
-    render_qr(masked_matrix, scale=10, border=4, filename="a12.png")
+    render_qr(masked_matrix, scale=25, border=2, filename=filename, fg_color=fg_color, bg_color=bg_color)
 
