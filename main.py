@@ -1,5 +1,6 @@
 from generate_qrcode import generate_qrcode
 
 if __name__ == "__main__":
-    data = "HELLo"
-    generate_qrcode(data=data)
+    # Simple CLI fallback: generate to a12.png
+    data = "https://example.com"
+    generate_qrcode(data=data, filename="a12.png")

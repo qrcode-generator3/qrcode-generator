@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QR Code Generator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: linear-gradient(135deg, #eef2ff, #f8fafc);
+  --card: rgba(255,255,255,.8);
+  --border: rgba(0,0,0,.08);
+  --muted: #6b7280;
+  --accent: #6366f1;
+  --radius: 18px;
+  --shadow: 0 20px 40px rgba(0,0,0,.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: var(--bg);
+}
+
+.page {
+  max-width: 1100px;
+  margin: auto;
+  padding: 32px 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 32px;
+}
+
+header p {
+  color: var(--muted);
+}
+
+main {
+  display: grid;
+  grid-template-columns: minmax(320px,420px) 1fr;
+  gap: 28px;
+}
+
+@media (max-width:900px) {
+  main { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  margin-top: 6px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ✅ FIXED COLOR PICKER */
+.color-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.color-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.06);
+}
+
+.color-swatch.selected {
+  border-color: white;
+  box-shadow: 0 0 0 3px var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+button {
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+button.primary {
+  background: var(--accent);
+  color: white;
+}
+
+button.secondary {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+button:disabled {
+  opacity: .6;
+}
+
+.preview {
+  min-height: 360px;
+  border-radius: 16px;
+  border: 2px dashed rgba(0,0,0,.08);
+  display: grid;
+  place-items: center;
+}
+
+.preview img {
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 18px 36px rgba(0,0,0,.15);
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+<header>
+  <h1>QR Code Generator</h1>
+  <p>Choose a color, generate, download</p>
+</header>
+
+<main>
+<section class="card">
+<h2>Settings</h2>
+
+<form id="qrForm">
+<label>Target URL</label>
+<input id="url" type="url" placeholder="https://example.com" required>
+
+<div style="margin-top:18px">
+<label>QR Color</label>
+<div class="color-picker" id="colorPicker"></div>
+<div class="hint">Only dark colors for scan reliability</div>
+</div>
+
+<div class="actions">
+<button class="primary">Generate</button>
+<button class="secondary" id="downloadBtn" type="button" disabled>Download</button>
+</div>
+</form>
+</section>
+
+<section class="card">
+<h2>Preview</h2>
+<div class="preview" id="preview">
+<span class="hint">QR preview will appear here</span>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+/* MUST MATCH BACKEND PALETTE */
+const COLORS = [
+  { name: 'black',    hex: '#000000' },
+  { name: 'charcoal', hex: '#212121' },
+  { name: 'navy',     hex: '#0f172a' },
+  { name: 'indigo',   hex: '#312e81' },
+  { name: 'blue',     hex: '#172554' },
+  { name: 'emerald',  hex: '#065f46' },
+  { name: 'red',      hex: '#7f1d1d' },
+  { name: 'purple',  hex: '#581c87' }
+];
+
+let selectedColor = 'black';
+
+const picker = document.getElementById('colorPicker');
+COLORS.forEach((c, i) => {
+  const el = document.createElement('div');
+  el.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+  el.style.background = c.hex;
+  el.onclick = () => {
+    document.querySelectorAll('.color-swatch')
+      .forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedColor = c.name;
+  };
+  picker.appendChild(el);
+});
+
+const form = document.getElementById('qrForm');
+const preview = document.getElementById('preview');
+const downloadBtn = document.getElementById('downloadBtn');
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  preview.innerHTML = '<span class="hint">Generating…</span>';
+  downloadBtn.disabled = true;
+
+  const res = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: document.getElementById('url').value.trim(),
+      color: selectedColor
+    })
+  });
+
+  const data = await res.json();
+  if (!data.success) {
+    preview.innerHTML = '<span class="hint">Error</span>';
+    return;
+  }
+
+  const img = document.createElement('img');
+  img.src = data.qr_url;
+  preview.innerHTML = '';
+  preview.appendChild(img);
+
+  downloadBtn.disabled = false;
+  downloadBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.href = data.qr_url;
+    a.download = 'qr.png';
+    a.click();
+  };
+};
+</script>
+</body>
+</html>

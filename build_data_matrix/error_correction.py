@@ -1,4 +1,70 @@
-from reedsolo import RSCodec
+# Custom Reed-Solomon implementation (GF(256))
+def gf_mul(a, b):
+    if a == 0 or b == 0:
+        return 0
+    # Log/Antilog based multiplication
+    # Precomputed tables for speed/simplicity
+    log = [0] * 256
+    exp = [0] * 512
+    x = 1
+    for i in range(255):
+        exp[i] = x
+        exp[i + 255] = x
+        log[x] = i
+        x = (x << 1) ^ (0x11d if x & 0x80 else 0)
+    
+    return exp[log[a] + log[b]]
+
+def gf_poly_mul(p, q):
+    r = [0] * (len(p) + len(q) - 1)
+    for j in range(len(q)):
+        for i in range(len(p)):
+            r[i + j] ^= gf_mul(p[i], q[j])
+    return r
+
+def rs_generator_poly(nsym):
+    g = [1]
+    # QR code uses alpha^0 = 1, alpha^1 = 2, ...
+    # generator polynomial: (x - alpha^0)(x - alpha^1)...(x - alpha^(nsym-1))
+    # In GF(256), subtraction is same as XOR.
+    # alpha^i is 2^i if we use the same generator as reedsolo
+    
+    exp = [0] * 512
+    x = 1
+    for i in range(255):
+        exp[i] = x
+        exp[i + 255] = x
+        x = (x << 1) ^ (0x11d if x & 0x80 else 0)
+
+    for i in range(nsym):
+        # Multiply g by (x + alpha^i)
+        g = gf_poly_mul(g, [1, exp[i]])
+    return g
+
+def rs_encode(data, nsym):
+    gen = rs_generator_poly(nsym)
+    # Division of data by gen
+    res = list(data) + [0] * nsym
+    
+    # Precompute tables for speed
+    log = [0] * 256
+    exp = [0] * 512
+    x = 1
+    for i in range(255):
+        exp[i] = x
+        exp[i + 255] = x
+        log[x] = i
+        x = (x << 1) ^ (0x11d if x & 0x80 else 0)
+
+    for i in range(len(data)):
+        coef = res[i]
+        if coef != 0:
+            log_coef = log[coef]
+            for j in range(1, len(gen)):
+                if gen[j] != 0:
+                    res[i + j] ^= exp[log_coef + log[gen[j]]]
+    
+    return res[len(data):]
 
 from build_data_matrix.ec_blocks_table import EC_BLOCKS_TABLE
 
@@ -31,11 +97,7 @@ def split_into_blocks(codewords, version, ec_level):
 
 
 def generate_ec_codewords(block, ec_count):
-    rsc = RSCodec(nsym=ec_count, fcr=0, generator=2, prim=0x11d)
-    
-    # We want the remainder (the parity bytes)
-    encoded = rsc.encode(bytearray(block))
-    return list(encoded[-ec_count:])
+    return rs_encode(block, ec_count)
 
 
 def generate_all_ec_blocks(blocks, version, ec_level):
