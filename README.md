@@ -1,4 +1,5 @@
-<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/d154c33c-af98-49f0-9727-4a183259b587" />
+<img width="252" height="183" alt="image" src="https://github.com/user-attachments/assets/a199abbc-27f4-45d9-aca3-e90ea1a122bb" />
+
 
 # 🔳 QR Code Generator (From Scratch)
 
