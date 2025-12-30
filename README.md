@@ -45,6 +45,14 @@ pip install reedsolo pillow  # Example; adjust based on actual needs
    pip install reedsolo  # Add more if needed (e.g., pillow for PNG output)
    ```
 
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+
 ## Usage
 
 Run the main script to generate a QR code:
