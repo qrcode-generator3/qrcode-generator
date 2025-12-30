@@ -1,3 +1,5 @@
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/d154c33c-af98-49f0-9727-4a183259b587" />
+
 # 🔳 QR Code Generator (From Scratch)
 
 A high-performance, **zero-dependency** (core logic) Python implementation of the **ISO/IEC 18004** QR code standard. This project generates valid, scannable QR codes from scratch, handling everything from data encoding to error correction and mask selection.
