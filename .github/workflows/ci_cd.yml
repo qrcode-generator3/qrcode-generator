@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master", "eyoel_branch" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings.
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Run tests
+      run: |
+        python -m unittest discover tests
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/eyoel_branch')
+    steps:
+    - name: Deploy to Render
+      env:
+        DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      run: |
+        if [ -n "$DEPLOY_URL" ]; then
+          echo "Triggering Render deployment..."
+          curl -X GET "$DEPLOY_URL"
+        else
+          echo "RENDER_DEPLOY_HOOK_URL secret not set. Skipping deployment trigger."
+          echo "If you want this Action to trigger the deploy, verify steps in README."
+        fi
