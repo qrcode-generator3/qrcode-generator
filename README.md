@@ -1,93 +1,106 @@
-# QR Code Generator
+# 🔳 QR Code Generator (From Scratch)
 
-A **Python-based QR code generator** from scratch, implementing the full QR code encoding process according to the ISO/IEC 18004 standard.
+A high-performance, **zero-dependency** (core logic) Python implementation of the **ISO/IEC 18004** QR code standard. This project generates valid, scannable QR codes from scratch, handling everything from data encoding to error correction and mask selection.
 
-This project builds and renders QR codes without relying on external libraries like `qrcode` or `segno`. It handles data encoding, error correction (Reed-Solomon), masking, and matrix rendering.
+> [!IMPORTANT]
+> This is a **from-scratch implementation**. It does not use `qrcode`, `segno`, or any other high-level QR libraries for the generation logic. It implements the full encoding pipeline manually.
 
-## Features
+---
 
-- Implements the complete QR code generation pipeline, including data encoding (byte, alphanumeric, and other supported modes), Reed–Solomon error correction, data block interleaving, mask pattern selection, and final QR matrix construction.
-- Designed with a modular architecture, separating data matrix generation from rendering logic for better maintainability and extensibility.
-- Supports command-line execution through `main.py`.
+## ✨ Features
 
-## Project Structure
+- **Full Pipeline Implementation**:
+  - **Data Encoding**: Supports Byte and Alphanumeric modes.
+  - **Error Correction**: Implements Reed-Solomon (via `reedsolo`) for robust data recovery.
+  - **Matrix Construction**: Manual placement of finder patterns, alignment patterns, and timing patterns.
+  - **Masking System**: Evaluates all 8 mask patterns to find the optimal density for scanning reliability.
+- **🎨 Custom Styling**: Support for custom foreground and background colors.
+- **🌐 Modern Web Interface**: A sleek, glassmorphism-inspired web UI to generate and download QR codes instantly.
+- **💻 CLI Support**: Simple command-line interface for quick generation.
 
+---
+
+## 🚀 Quick Start
+
+### 1. Installation
+Clone the repository and install the minimal dependencies:
+
+```bash
+git clone https://github.com/qrcode-generator3/qrcode-generator.git
+cd qrcode-generator
+pip install -r requirements.txt
 ```
+
+### 2. Run the Web App
+Experience the generator in your browser:
+
+```bash
+python app.py
+```
+Then visit **`http://localhost:5000`**.
+
+### 3. Use via CLI
+Generate a QR code directly from the terminal:
+
+```bash
+python main.py
+```
+*(Edit `main.py` to change the target data and filename)*
+
+---
+
+## 🛠 Tech Stack
+
+- **Backend**: Python 3.x
+- **Frontend**: Vanilla HTML5, CSS3 (Modern Glassmorphism), and Javascript.
+- **Math & Image**: `numpy` for matrix operations, `pillow` for image rendering, and `reedsolo` for error correction.
+
+---
+
+## 📂 Project Structure
+
+```text
 .
-├── build_data_matrix/      # Modules for encoding data and error correction
-├── render_data_matrix/     # Modules for rendering the QR matrix (e.g., to image)
-├── generate_qrcode.py      # Core QR code generation logic
-├── main.py                 # Entry point / CLI script
-├── .gitignore
-└── LICENSE                 # MIT License
+├── build_data_matrix/      # Core logic for QR generation
+│   ├── encoding.py         # Data to bitstream conversion
+│   ├── error_correction.py # Reed-Solomon block generation
+│   └── matrix/             # Patterns and mask selection logic
+├── render_data_matrix/     # Image rendering modules
+├── app.py                  # Web server (http.server)
+├── index.html              # Frontend UI
+├── generate_qrcode.py      # Main API wrapper
+└── main.py                 # CLI entry point
 ```
 
-## Requirements
+---
 
-- Python 3.6+
-- Dependencies: `reedsolo` (for Reed-Solomon error correction), and possibly others like Pillow for image rendering (check `render_data_matrix/` for details)
+## 🧪 Technical Details
 
-Install dependencies:
-```bash
-pip install reedsolo pillow  # Example; adjust based on actual needs
-```
+This generator implements the following steps of the QR Standard:
+1. **Mode Detection**: Analyzes input to choose the most efficient encoding.
+2. **Version Selection**: Automatically picks the smallest QR Version (1-40) that can fit the data.
+3. **Data Masking**: Applies all 8 ISO-defined masks and calculates a penalty score to ensure the final image is easy for cameras to read.
+4. **Formatting**: Correctly encodes Error Correction Level and Mask Pattern into the matrix reserved areas.
 
-## Installation
+---
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/qrcode-generator3/qrcode-generator.git
-   cd qrcode-generator
-   ```
+## 🤝 Contributing
 
-2. Install required packages:
-   ```bash
-   pip install reedsolo  # Add more if needed (e.g., pillow for PNG output)
-   ```
+Contributions are welcome! If you'd like to add support for **Kanji/Numeric modes** or **Version 40+** support, feel free to open a PR.
 
+1. Fork the repo.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-### How to Contribute
+---
 
-1. Fork the repository
-2. Create a new branch:
-   ```bash
-   git checkout -b feature/your-feature-name
+## 📜 License
 
-## Usage
+Distributed under the MIT License. See `LICENSE` for more information.
 
-Run the main script to generate a QR code:
+---
 
-```bash
-python main.py "Your text here"  # Example: python main.py "HELLo"
-```
+*Made with ❤️ by the QR Generator Team*
 
-- Customize parameters (version, error correction level, mask, output file) by editing `main.py` or extending the CLI.
-- Output: Typically saves a PNG image or prints the matrix.
-
-For advanced usage, import `generate_qrcode.py` in your own scripts.
-
-### Example
-
-```python
-from generate_qrcode import generate_qr_code  # Adjust import as needed
-
-matrix = generate_qr_code("HELLo", version=1, error_level="M")
-# Then render with render_data_matrix modules
-```
-
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-We welcome contributions! Whether it's adding new encoding modes, supporting higher versions, improving rendering, writing tests, or fixing bugs.
-
-Please read our [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before submitting.
-
-## Acknowledgments
-
-- Based on the QR code specification (ISO/IEC 18004)
-- Uses `reedsolo` for Reed-Solomon implementation
-
-Enjoy generating QR codes!
