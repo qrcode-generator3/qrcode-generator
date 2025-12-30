@@ -15,3 +15,5 @@ pytest>=8.0.0
 
 # Linting (optional, but good practice)
 flake8>=7.0.0
+
+qrcode[pil]>=7.4.2
