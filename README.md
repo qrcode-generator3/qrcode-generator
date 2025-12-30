@@ -6,14 +6,9 @@ This project builds and renders QR codes without relying on external libraries l
 
 ## Features
 
-- Full QR code generation pipeline:
-  - Data encoding (supports byte mode, alphanumeric, etc.)
-  - Error correction code generation using Reed-Solomon
-  - Data interleaving for multiple blocks
-  - Masking patterns
-  - Final matrix construction
-- Modular structure with separate modules for building and rendering the data matrix
-- Command-line usage via `main.py`
+- Implements the complete QR code generation pipeline, including data encoding (byte, alphanumeric, and other supported modes), Reed–Solomon error correction, data block interleaving, mask pattern selection, and final QR matrix construction.
+- Designed with a modular architecture, separating data matrix generation from rendering logic for better maintainability and extensibility.
+- Supports command-line execution through `main.py`.
 
 ## Project Structure
 
